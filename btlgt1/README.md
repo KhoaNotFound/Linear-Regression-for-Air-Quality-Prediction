@@ -41,7 +41,7 @@ Dự án này vận dụng các kiến thức nền tảng về Toán học và 
 ## dataset Dữ liệu (Dataset)
 
 * **Tên:** Air Quality Ho Chi Minh City
-* **Nguồn:** (Thêm link Kaggle hoặc nguồn của bạn ở đây)
+* **Nguồn:** (https://data.mendeley.com/datasets/pk6tzrjks8/1?fbclid=IwY2xjawOEQ5ZleHRuA2FlbQIxMABicmlkETE5OGx4Q1FmbGZrWkozM3RWc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHvEkZXfUlvjYFc6QTs9smXjSBPa3H5UCQLTJvno-stcOf7qcihRDUo9ZQczC_aem_Z2mfiklCv4h65gSiW_2Ofg)
 * **Feature (X) sử dụng:** `TSP` (Total Suspended Particulates)
 * **Target (y) sử dụng:** `PM2.5`
 
