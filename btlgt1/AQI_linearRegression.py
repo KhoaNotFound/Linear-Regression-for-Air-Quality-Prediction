@@ -109,7 +109,8 @@ X_Train_scaled = (X_Train - mu)/sigma #dựa theo công thức đã đề cập,
 
 X_Train_np = X_Train_scaled.values.flatten()#chuyển X_Train_scaled sang numpy array
 y_Train_np = y_Train.values#chuyển y_Train sang numpy array
-
+X_Test_np = X_Test.values.flatten() # tương tự
+y_Test_np = y_Test.values
 #khởi tạo các list để lưu trữ giá trị của hàm lỗi, w và b
 error_value_list = []
 w_list = []
@@ -129,8 +130,14 @@ b_unscaled = b_opti - (w_opti * mu)/sigma
 # w_unscaled_list.append(w_list/sigma)
 # b_unscaled_list.append(b_list - (w_list * mu)/sigma)
 #Viết phương trình hồi quy tuyến tính với w và b đã được tối ưu theo thang đo gốc (microgam/m^30)
-y_unscaled = w_unscaled * X_Train + b_unscaled
-y_true = lr.coef_ * X_Train + lr.intercept_
+y_unscaled = w_unscaled * X_Train + b_unscaled#đường hồi quy của mô hình thủ công
+y_predict = w_unscaled * X_Test_np + b_unscaled #kết quả dự đoán dựa trên đường hồi quy thủ công
+y_true = lr.coef_ * X_Train + lr.intercept_ #đường hồi quy của mô hình chuẩn
+#tính độ chính xác của mô hình thủ công dựa trên dữ liệu test
+u = ((y_Test_np - y_predict)**2).sum()
+v = ((y_Test_np - y_Test_np.mean())**2).sum()
+accuracy = 1 - u/v #công thức R^2
+
 print("huấn luyện xong")
 print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
 print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
@@ -141,7 +148,7 @@ print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn
 #khởi tạo khung biểu đồ chứa 2 biểu đồ con, 1 chứa biểu đồ đường hồi quy, 1 chứa biểu đồ hàm lỗi
 fig, axes = plt.subplots(1,2,figsize=(15,7))
 
-axes[0].set_title("Biểu đồ đường hồi quy tuyến tính")
+axes[0].set_title("Biểu đồ đường hồi quy tuyến tính\nĐộ chính xác của mô hình khi dự đoán trên dữ liệu test: {:.4f}%".format(accuracy*100))
 axes[0].plot(X_Train, y_unscaled, 'red')#vẽ đường hồi quy
 axes[0].set_xlabel("TSP (microgam/m^3)")
 axes[0].set_ylabel("PM2.5 (microgam/m^3)")
