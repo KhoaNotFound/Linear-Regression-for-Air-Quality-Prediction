@@ -46,7 +46,7 @@ aqi_data_final = aqi_data_cleaned[aqi_data_cleaned['TSP'] > 0]
 X,y = aqi_data_final[['TSP']], aqi_data_final['PM2.5']
 
 #tách dữ liệu thành train và test, cho 75% dữ liệu để train, 25% dữ liệu để test, X_Train, X_Test, y_Train, y_Test cũng đang là DataFrame
-X_Train, X_Test, y_Train, y_Test = train_test_split(X, y, random_state = 42)
+X_Train, X_Test, y_Train, y_Test = train_test_split(X, y, random_state = 0)
 
 #Tạo model linear regression trong thư viện sklearn để đối chiếu kết quả thủ công
 lr = LinearRegression()
