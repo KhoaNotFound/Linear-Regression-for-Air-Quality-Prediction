@@ -61,6 +61,12 @@ w = np.random.randn() #khởi tạo ngẫu nhiên w
 b = np.random.randn() # khởi tạo ngẫu nhiên b
 n = len(X_Train) #gán n là số mẫu của X_Train
 eta = 0.001 #thử eta bằng số này
+
+#khởi tạo các list để lưu trữ giá trị của hàm lỗi, w và b
+error_value_list = []
+w_list = []
+b_list = []
+
 #Viết hàm thiết lập thang màu đánh giá mức độ bụi mịn
 def get_color(value):
     if 0 <= value <= 12.0:
@@ -75,29 +81,38 @@ def get_color(value):
         return '#8f3f97' # Tím
     else:
         return '#7e0023'# Nâu sẫm
+
 #tạo danh sách màu tương ứng với từng giá trị pm2.5
 color_list = []
 for value in y_Train:
     color = get_color(value)
     color_list.append(color)
+
 #-----------------------------
 #Viết hàm tính giá trị hàm lỗi
 #-----------------------------
 def loss_function(y_true,y_pred):#y_true trong bài toán này là y_train, y_pred là y của đường thẳng hồi quy
     return (1/n) * ((y_true - y_pred)**2).sum()
+
 #--------------------------------
 #Viết thuật toán gradient descent
 #--------------------------------
+
 def gradient_descent(loss_function, eta, w, b): #hàm này truyền vào cả hàm lỗi để liên tục cập nhật w và b dựa trên lý thuyết toán của gradient descent
     for i in range(10000):#cho lặp n lần
+
         y_line = w * X_Train_np + b #viết phương trình hồi quy tuyến tính trước tiên với w và b đã được khởi tạo ngẫu nhiên, sau đó cập nhật y line
+
         gradient_loss_w = (2/n) * (X_Train_np * (y_line - y_Train_np)).sum() #đây là biểu thức đạo hàm riêng của hàm loss theo w dùng xtrainscaled để tránh trường hợp bùng nổ gradient
+
         gradient_loss_b = (2/n) * (y_line - y_Train_np).sum() #tương tự câu trên
         w -= eta * gradient_loss_w #liên tục cập nhật w theo công thức gradient descent
         b -= eta * gradient_loss_b #liên tục cập nhật b theo công thức gradient descent
         error_value_list.append(loss_function(y_Train_np,y_line)) #lưu từng giá trị của hàm loss vào list để tiện vẽ đồ thị hàm loss
+
         w_list.append(w) #lưu từng giá trị của tham số w
         b_list.append(b) #lưu từng giá trịh của tham số b
+
     return w,b #sau khi hết 1000 lần lặp thì trả về giá trị w và b cuối cùng (giá trị tiệm cận nhất đến giá trị chính xác)
 
 mu = X_Train.values.mean() #chuyển đổi X_Train về numpy array 1 chiều và thực hiện tính toán giá trị trung bình và gán nó vào mu (bây giờ đang mang kiểu số thực)
@@ -111,10 +126,7 @@ X_Train_np = X_Train_scaled.values.flatten()#chuyển X_Train_scaled sang numpy 
 y_Train_np = y_Train.values#chuyển y_Train sang numpy array
 X_Test_np = X_Test.values.flatten() # tương tự
 y_Test_np = y_Test.values
-#khởi tạo các list để lưu trữ giá trị của hàm lỗi, w và b
-error_value_list = []
-w_list = []
-b_list = []
+
 
 #gọi hàm gradient descent, tiến hành tối ưu tham số đồng thời lưu w và b mà hàm gradient descent tối ưu vào 2 biến w_opti và b_opti
 w_opti, b_opti = gradient_descent(
@@ -142,9 +154,11 @@ print("huấn luyện xong")
 print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
 print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
 print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn: " ,lr.coef_, lr.intercept_)
+
 #----------------------
 #BIỂU DIỄN LÊN ĐỒ THỊ
 #----------------------
+
 #khởi tạo khung biểu đồ chứa 2 biểu đồ con, 1 chứa biểu đồ đường hồi quy, 1 chứa biểu đồ hàm lỗi
 fig, axes = plt.subplots(1,2,figsize=(15,7))
 
