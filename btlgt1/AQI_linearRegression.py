@@ -20,17 +20,16 @@
 #       w = w - eta.(delta_J/delta_w)
 #       b = b - eta.(delta_J/delta_b)
 #       (Cách chứng minh sẽ đề cập trong tài liệu báo cáo)
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import random
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt #thư viện mạnh cho việc vẽ biểu đồ
+import numpy as np #thư viện mạnh cho việc thự hiện các phép toán
+import pandas as pd #thư viện mạnh cho việc thao tác và xử lý dữ liệu
+import random #để khởi tạo giá trị ngẫu nhiên
+from sklearn.linear_model import LinearRegression #dùng mô hình có sẵn từ sklearn
+from sklearn.model_selection import train_test_split #để chia dữ liệu theo tỉ lệ
 
 #----------------------------
 #MAIN (phần xử lý chính)
 #----------------------------
-
 #read csv file
 aqi_data_raw = pd.read_csv("btlgt1/Air Quality Ho Chi Minh City.csv")
 
@@ -61,8 +60,26 @@ print("đang huấn luyện...")
 w = np.random.randn() #khởi tạo ngẫu nhiên w
 b = np.random.randn() # khởi tạo ngẫu nhiên b
 n = len(X_Train) #gán n là số mẫu của X_Train
-eta = 0.0001 #thử eta bằng số này
-
+eta = 0.001 #thử eta bằng số này
+#Viết hàm thiết lập thang màu đánh giá mức độ bụi mịn
+def get_color(value):
+    if 0 <= value <= 12.0:
+        return '#00e400' # Xanh lá
+    elif 12.0 < value <= 35.4:
+        return '#ffff00' # Vàng
+    elif 35.4 < value <= 55.4:
+        return '#ff7e00' # Cam
+    elif 55.4 < value <= 150.4:
+        return '#ff0000' # Đỏ
+    elif 150.4 < value <= 250.4:
+        return '#8f3f97' # Tím
+    else:
+        return '#7e0023'# Nâu sẫm
+#tạo danh sách màu tương ứng với từng giá trị pm2.5
+color_list = []
+for value in y_Train:
+    color = get_color(value)
+    color_list.append(color)
 #-----------------------------
 #Viết hàm tính giá trị hàm lỗi
 #-----------------------------
@@ -72,7 +89,7 @@ def loss_function(y_true,y_pred):#y_true trong bài toán này là y_train, y_pr
 #Viết thuật toán gradient descent
 #--------------------------------
 def gradient_descent(loss_function, eta, w, b): #hàm này truyền vào cả hàm lỗi để liên tục cập nhật w và b dựa trên lý thuyết toán của gradient descent
-    for i in range(100000):#cho lặp n lần
+    for i in range(10000):#cho lặp n lần
         y_line = w * X_Train_np + b #viết phương trình hồi quy tuyến tính trước tiên với w và b đã được khởi tạo ngẫu nhiên, sau đó cập nhật y line
         gradient_loss_w = (2/n) * (X_Train_np * (y_line - y_Train_np)).sum() #đây là biểu thức đạo hàm riêng của hàm loss theo w dùng xtrainscaled để tránh trường hợp bùng nổ gradient
         gradient_loss_b = (2/n) * (y_line - y_Train_np).sum() #tương tự câu trên
@@ -98,7 +115,6 @@ error_value_list = []
 w_list = []
 b_list = []
 
-
 #gọi hàm gradient descent, tiến hành tối ưu tham số đồng thời lưu w và b mà hàm gradient descent tối ưu vào 2 biến w_opti và b_opti
 w_opti, b_opti = gradient_descent(
     loss_function=loss_function,
@@ -110,6 +126,8 @@ w_opti, b_opti = gradient_descent(
 w_unscaled = w_opti/sigma #công thức và cách chứng minh sẽ đề cập trong báo cáo
 b_unscaled = b_opti - (w_opti * mu)/sigma
 
+# w_unscaled_list.append(w_list/sigma)
+# b_unscaled_list.append(b_list - (w_list * mu)/sigma)
 #Viết phương trình hồi quy tuyến tính với w và b đã được tối ưu theo thang đo gốc (microgam/m^30)
 y_unscaled = w_unscaled * X_Train + b_unscaled
 y_true = lr.coef_ * X_Train + lr.intercept_
@@ -117,11 +135,28 @@ print("huấn luyện xong")
 print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
 print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
 print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn: " ,lr.coef_, lr.intercept_)
+#----------------------
+#BIỂU DIỄN LÊN ĐỒ THỊ
+#----------------------
+#khởi tạo khung biểu đồ chứa 2 biểu đồ con, 1 chứa biểu đồ đường hồi quy, 1 chứa biểu đồ hàm lỗi
+fig, axes = plt.subplots(1,2,figsize=(15,7))
 
-#biểu diễn đồ thị
-plt.plot(X_Train, y_unscaled, 'red') #biểu diễn đường hồi quy
-plt.plot(X_Train, y_true, 'green') #biểu diễn đường hồi quy
-plt.scatter(X_Train,y_Train,color= 'blue', s=1) #biểu diễn các dât point
-plt.xlabel("TSP (microgam/m^3)")
-plt.ylabel("PM2.5 (microgam/m^3)")
+axes[0].set_title("Biểu đồ đường hồi quy tuyến tính")
+axes[0].plot(X_Train, y_unscaled, 'red')#vẽ đường hồi quy
+axes[0].set_xlabel("TSP (microgam/m^3)")
+axes[0].set_ylabel("PM2.5 (microgam/m^3)")
+axes[0].grid(True)
+axes[0].scatter(
+    X_Train,
+    y_Train,
+    c = color_list,
+    alpha = 0.8,
+    s=10)#vẽ datapoint
+
+axes[1].set_title("Biểu đồ mô tả quá trình hàm mất mát hội tụ")
+axes[1].plot(error_value_list, color='green')#vẽ đồ thị hàm lỗi
+axes[1].set_xlabel("epochs")
+axes[1].set_ylabel("(microgam/m^3)^2 or MSE")
+axes[1].grid(True)
+
 plt.show()
