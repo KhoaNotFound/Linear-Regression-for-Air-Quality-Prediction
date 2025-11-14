@@ -112,7 +112,7 @@ b_unscaled = b_opti - (w_opti * mu)/sigma
 
 #Viết phương trình hồi quy tuyến tính với w và b đã được tối ưu theo thang đo gốc (microgam/m^30)
 y_unscaled = w_unscaled * X_Train + b_unscaled
-
+y_true = lr.coef_ * X_Train + lr.intercept_
 print("huấn luyện xong")
 print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
 print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
@@ -120,6 +120,7 @@ print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn
 
 #biểu diễn đồ thị
 plt.plot(X_Train, y_unscaled, 'red') #biểu diễn đường hồi quy
+plt.plot(X_Train, y_true, 'green') #biểu diễn đường hồi quy
 plt.scatter(X_Train,y_Train,color= 'blue', s=1) #biểu diễn các dât point
 plt.xlabel("TSP (microgam/m^3)")
 plt.ylabel("PM2.5 (microgam/m^3)")
