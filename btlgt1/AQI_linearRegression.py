@@ -26,7 +26,6 @@ import pandas as pd #thư viện mạnh cho việc thao tác và xử lý dữ l
 import random #để khởi tạo giá trị ngẫu nhiên
 from sklearn.linear_model import LinearRegression #dùng mô hình có sẵn từ sklearn
 from sklearn.model_selection import train_test_split #để chia dữ liệu theo tỉ lệ
-
 #----------------------------
 #MAIN (phần xử lý chính)
 #----------------------------
@@ -34,7 +33,9 @@ from sklearn.model_selection import train_test_split #để chia dữ liệu the
 aqi_data_raw = pd.read_csv("btlgt1/Air Quality Ho Chi Minh City.csv")
 
 #dọn dẹp các hàng có giá trị NaN 
-aqi_data_cleaned = aqi_data_raw.dropna(how='any', subset=['TSP', 'PM2.5'])
+aqi_data_cleaned = aqi_data_raw.dropna(
+    how='any',
+    subset=['TSP', 'PM2.5'])
 
 #tính tổng các hàng chứa giá trị NaN còn sót, nếu kết quả bằng 0 thì dữ liệu đã dọn xong
 sum_of_NaN_missed = aqi_data_cleaned.isnull().sum().sum()
@@ -46,7 +47,10 @@ aqi_data_final = aqi_data_cleaned[aqi_data_cleaned['TSP'] > 0]
 X,y = aqi_data_final[['TSP']], aqi_data_final['PM2.5']
 
 #tách dữ liệu thành train và test, cho 75% dữ liệu để train, 25% dữ liệu để test, X_Train, X_Test, y_Train, y_Test cũng đang là DataFrame
-X_Train, X_Test, y_Train, y_Test = train_test_split(X, y, random_state = 0)
+X_Train, X_Test, y_Train, y_Test = train_test_split(
+    X,
+    y,
+    random_state = 0)
 
 #Tạo model linear regression trong thư viện sklearn để đối chiếu kết quả thủ công
 lr = LinearRegression()
@@ -113,7 +117,7 @@ def gradient_descent(loss_function, eta, w, b): #hàm này truyền vào cả h�
         w_list.append(w) #lưu từng giá trị của tham số w
         b_list.append(b) #lưu từng giá trịh của tham số b
 
-    return w,b #sau khi hết 1000 lần lặp thì trả về giá trị w và b cuối cùng (giá trị tiệm cận nhất đến giá trị chính xác)
+    return w,b #sau khi hết n lần lặp thì trả về giá trị w và b cuối cùng (giá trị tiệm cận nhất đến giá trị chính xác)
 
 mu = X_Train.values.mean() #chuyển đổi X_Train về numpy array 1 chiều và thực hiện tính toán giá trị trung bình và gán nó vào mu (bây giờ đang mang kiểu số thực)
 
@@ -154,7 +158,7 @@ print("huấn luyện xong")
 print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
 print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
 print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn: " ,lr.coef_, lr.intercept_)
-
+print("giá trị cuối cùng của hàm lỗi sau khi huấn luyện: {}".format(error_value_list[-1]))
 #----------------------
 #BIỂU DIỄN LÊN ĐỒ THỊ
 #----------------------
