@@ -23,7 +23,6 @@
 import matplotlib.pyplot as plt #thư viện mạnh cho việc vẽ biểu đồ
 import numpy as np #thư viện mạnh cho việc thự hiện các phép toán
 import pandas as pd #thư viện mạnh cho việc thao tác và xử lý dữ liệu
-import random #để khởi tạo giá trị ngẫu nhiên
 from sklearn.linear_model import LinearRegression #dùng mô hình có sẵn từ sklearn
 from sklearn.model_selection import train_test_split #để chia dữ liệu theo tỉ lệ
 #----------------------------
@@ -92,6 +91,17 @@ for value in y_Train:
     color = get_color(value)
     color_list.append(color)
 
+mu = X_Train.values.mean() #chuyển đổi X_Train về numpy array 1 chiều và thực hiện tính toán giá trị trung bình và gán nó vào mu (bây giờ đang mang kiểu số thực)
+
+sigma = X_Train.values.std() #chuyển đổi X_Train về numpy array 1 chiều và thực hiện tính toán độ lệch chuẩn và gán nó vào sigma (bây giờ đang mang kiểu số thực)
+
+#Scale data bằng phương pháp z score
+X_Train_scaled = (X_Train - mu)/sigma #dựa theo công thức đã đề cập, X_Train_scaled vẫn đang là DataFrame do nó tính trên X_Train dataframe
+
+X_Train_scaled_np = X_Train_scaled.values.flatten()#chuyển X_Train_scaled sang numpy array
+y_Train_np = y_Train.values#chuyển y_Train sang numpy array
+X_Test_np = X_Test.values.flatten() # tương tự
+y_Test_np = y_Test.values
 #-----------------------------
 #Viết hàm tính giá trị hàm lỗi
 #-----------------------------
@@ -102,40 +112,30 @@ def loss_function(y_true,y_pred):#y_true trong bài toán này là y_train, y_pr
 #Viết thuật toán gradient descent
 #--------------------------------
 
-def gradient_descent(loss_function, eta, w, b): #hàm này truyền vào cả hàm lỗi để liên tục cập nhật w và b dựa trên lý thuyết toán của gradient descent
+def gradient_descent(loss_function, learning_rate, w, b): #hàm này truyền vào cả hàm lỗi để liên tục cập nhật w và b dựa trên lý thuyết toán của gradient descent
     for i in range(10000):#cho lặp n lần
 
-        y_line = w * X_Train_np + b #viết phương trình hồi quy tuyến tính trước tiên với w và b đã được khởi tạo ngẫu nhiên, sau đó cập nhật y line
+        y_line = w * X_Train_scaled_np + b #viết phương trình hồi quy tuyến tính trước tiên với w và b đã được khởi tạo ngẫu nhiên, sau đó cập nhật y line
 
-        gradient_loss_w = (2/n) * (X_Train_np * (y_line - y_Train_np)).sum() #đây là biểu thức đạo hàm riêng của hàm loss theo w dùng xtrainscaled để tránh trường hợp bùng nổ gradient
+        gradient_loss_w = (2/n) * (X_Train_scaled_np * (y_line - y_Train_np)).sum() #đây là biểu thức đạo hàm riêng của hàm loss theo w dùng xtrainscaled để tránh trường hợp bùng nổ gradient
 
         gradient_loss_b = (2/n) * (y_line - y_Train_np).sum() #tương tự câu trên
-        w -= eta * gradient_loss_w #liên tục cập nhật w theo công thức gradient descent
-        b -= eta * gradient_loss_b #liên tục cập nhật b theo công thức gradient descent
+        w -= learning_rate * gradient_loss_w #liên tục cập nhật w theo công thức gradient descent
+        b -= learning_rate * gradient_loss_b #liên tục cập nhật b theo công thức gradient descent
         error_value_list.append(loss_function(y_Train_np,y_line)) #lưu từng giá trị của hàm loss vào list để tiện vẽ đồ thị hàm loss
 
         w_list.append(w) #lưu từng giá trị của tham số w
-        b_list.append(b) #lưu từng giá trịh của tham số b
+        b_list.append(b) #lưu từng giá trị của tham số b
 
     return w,b #sau khi hết n lần lặp thì trả về giá trị w và b cuối cùng (giá trị tiệm cận nhất đến giá trị chính xác)
 
-mu = X_Train.values.mean() #chuyển đổi X_Train về numpy array 1 chiều và thực hiện tính toán giá trị trung bình và gán nó vào mu (bây giờ đang mang kiểu số thực)
 
-sigma = X_Train.values.std() #chuyển đổi X_Train về numpy array 1 chiều và thực hiện tính toán độ lệch chuẩn và gán nó vào sigma (bây giờ đang mang kiểu số thực)
-
-#Scale data bằng phương pháp z score
-X_Train_scaled = (X_Train - mu)/sigma #dựa theo công thức đã đề cập, X_Train_scaled vẫn đang là DataFrame do nó tính trên X_Train dataframe
-
-X_Train_np = X_Train_scaled.values.flatten()#chuyển X_Train_scaled sang numpy array
-y_Train_np = y_Train.values#chuyển y_Train sang numpy array
-X_Test_np = X_Test.values.flatten() # tương tự
-y_Test_np = y_Test.values
 
 
 #gọi hàm gradient descent, tiến hành tối ưu tham số đồng thời lưu w và b mà hàm gradient descent tối ưu vào 2 biến w_opti và b_opti
 w_opti, b_opti = gradient_descent(
     loss_function=loss_function,
-    eta=eta,
+    learning_rate=eta,
     w=w,
     b=b)
 
@@ -154,11 +154,46 @@ u = ((y_Test_np - y_predict)**2).sum()
 v = ((y_Test_np - y_Test_np.mean())**2).sum()
 accuracy = 1 - u/v #công thức R^2
 
-print("huấn luyện xong")
-print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
-print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
-print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn: " ,lr.coef_, lr.intercept_)
-print("giá trị cuối cùng của hàm lỗi sau khi huấn luyện: {}".format(error_value_list[-1]))
+# print("huấn luyện xong")
+# print("w và b sau khi tối ưu theo thang scale: ", w_opti,b_opti)
+# print("w và b sau khi tối ưu theo thang đo gốc (microgam/m^3): ", w_unscaled,b_unscaled)
+# print("w và b theo thang đo gốc được tối ưu bởi thư viện sklearn: " ,lr.coef_, lr.intercept_)
+# print("giá trị cuối cùng của hàm lỗi sau khi huấn luyện: {}".format(error_value_list[-1]))
+# Giả sử các biến này đã có giá trị từ code phía trên của bạn
+# (w_opti, b_opti, w_unscaled, b_unscaled, lr, error_value_list)
+
+# --- BẮT ĐẦU PHẦN ĐỊNH DẠNG ---
+
+print("\n" + "="*70)
+print(f"{'KẾT QUẢ HUẤN LUYỆN':^70}") # Căn giữa tiêu đề
+print("="*70)
+
+# 1. In thông tin tổng quan
+print(f"Trạng thái: {'Huấn luyện xong'}")
+print(f"Giá trị cuối cùng của hàm lỗi (Loss): {error_value_list[-1]:.6f}")
+print("-" * 70)
+
+# 2. In bảng so sánh tham số (w và b)
+print("\nSo sánh tham số tối ưu:")
+print("-" * 70)
+# Tiêu đề cột
+print(f"{'Tham số':<10} | {'Của bạn (Gốc)':<20} | {'Sklearn (Gốc)':<20} | {'Của bạn (Scaled)':<15}")
+print("-" * 70)
+
+# Dữ liệu hàng: Trọng số w
+# Lưu ý: Nếu w là mảng numpy, ta lấy phần tử đầu tiên hoặc format cả mảng
+w_sklearn = lr.coef_[0] if hasattr(lr.coef_, "__getitem__") else lr.coef_
+w_mine = w_unscaled if hasattr(w_unscaled, "__getitem__") else w_unscaled
+w_opt = w_opti if hasattr(w_opti, "__getitem__") else w_opti
+
+print(f"{'w (Weight)':<10} | {float(w_mine):<20.4f} | {float(w_sklearn):<20.4f} | {float(w_opt):<15.4f}")
+
+# Dữ liệu hàng: Hệ số chặn b
+b_sklearn = lr.intercept_
+print(f"{'b (Bias)':<10} | {float(b_unscaled):<20.4f} | {float(b_sklearn):<20.4f} | {float(b_opti):<15.4f}")
+
+print("-" * 70)
+print("\n")
 #----------------------
 #BIỂU DIỄN LÊN ĐỒ THỊ
 #----------------------
