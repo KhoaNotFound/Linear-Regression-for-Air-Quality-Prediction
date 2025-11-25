@@ -177,11 +177,9 @@ print("-" * 70)
 print("\nSo sánh tham số tối ưu:")
 print("-" * 70)
 # Tiêu đề cột
-print(f"{'Tham số':<10} | {'Của bạn (Gốc)':<20} | {'Sklearn (Gốc)':<20} | {'Của bạn (Scaled)':<15}")
+print(f"{'Tham số':<10} | {'Thủ công (Gốc)':<20} | {'Sklearn (Gốc)':<20} | {'Thủ công (Scaled)':<15}")
 print("-" * 70)
 
-# Dữ liệu hàng: Trọng số w
-# Lưu ý: Nếu w là mảng numpy, ta lấy phần tử đầu tiên hoặc format cả mảng
 w_sklearn = lr.coef_[0] if hasattr(lr.coef_, "__getitem__") else lr.coef_
 w_mine = w_unscaled if hasattr(w_unscaled, "__getitem__") else w_unscaled
 w_opt = w_opti if hasattr(w_opti, "__getitem__") else w_opti
